@@ -30,7 +30,7 @@ func CheckAndCreateDirectory(path string) {
 func SetStorageDir(path ...string) string {
 	storagePath := os.Getenv("STORAGE_DIR")
 	if len(storagePath) == 0 {
-		storagePath = "storages"
+		storagePath = "storage"
 	}
 
 	if len(path) > 0 {

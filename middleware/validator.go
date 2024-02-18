@@ -3,7 +3,7 @@ package middleware
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/yusologia/go-core/config"
-	"github.com/yusologia/go-core/response/error"
+	"github.com/yusologia/go-response/error"
 	"net/http"
 	"strings"
 	"time"

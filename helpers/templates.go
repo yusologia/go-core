@@ -12,7 +12,7 @@ func MailHTMLTemplate(path string, vars interface{}) string {
 
 	baseDir, _ := os.Getwd()
 
-	tmpl, err := template.ParseFiles(baseDir + "/Layout/Email/" + path)
+	tmpl, err := template.ParseFiles(baseDir + "/layout/Email/" + path)
 	if err != nil {
 		log.Panicf("Error parsing template: %v", err)
 	}
@@ -25,7 +25,7 @@ func PDFHTMLTemplate(path string, vars interface{}) bytes.Buffer {
 
 	baseDir, _ := os.Getwd()
 
-	tmpl, err := template.ParseFiles(baseDir + "/Layout/PDF/" + path)
+	tmpl, err := template.ParseFiles(baseDir + "/layout/PDF/" + path)
 	if err != nil {
 		log.Panicf("Error parsing template: %v", err)
 	}

@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/yusologia/go-core/response/error"
+	"github.com/yusologia/go-response/error"
 	"net/http"
 	"strings"
 )

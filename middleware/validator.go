@@ -32,6 +32,8 @@ func (v Validator) RegisterValidation(callback func(validate *validator.Validate
 	_ = config.LogiaValidate.RegisterValidation("date_ddmmyyyy", dateDDMMYYYYValidation)
 	_ = config.LogiaValidate.RegisterValidation("time_hhmm", dateHHMMValidation)
 	_ = config.LogiaValidate.RegisterValidation("time_hhmmss", dateHHMMSSValidation)
+	_ = config.LogiaValidate.RegisterValidation("date_ddmmyyyyhhmm", dateDDMMYYYYHHMMValidation)
+	_ = config.LogiaValidate.RegisterValidation("date_ddmmyyyyhhmmss", dateDDMMYYYYHHMMSSValidation)
 
 	callback(config.LogiaValidate)
 }
@@ -75,5 +77,25 @@ func dateHHMMSSValidation(fl validator.FieldLevel) bool {
 	}
 
 	_, err := time.Parse("15:04:05", field)
+	return err == nil
+}
+
+func dateDDMMYYYYHHMMValidation(fl validator.FieldLevel) bool {
+	field := fl.Field().String()
+	if field == "" {
+		return true
+	}
+
+	_, err := time.Parse("02/01/2006 15:04", field)
+	return err == nil
+}
+
+func dateDDMMYYYYHHMMSSValidation(fl validator.FieldLevel) bool {
+	field := fl.Field().String()
+	if field == "" {
+		return true
+	}
+
+	_, err := time.Parse("02/01/2006 15:04:05", field)
 	return err == nil
 }

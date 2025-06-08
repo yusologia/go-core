@@ -21,11 +21,11 @@ type UploadFile struct {
 	FileHandler *multipart.FileHeader
 }
 
-type XtremeAPIOption struct {
+type LogiaAPIOption struct {
 	Headers map[string]string
 }
 
-type XtremeAPI interface {
+type LogiaAPI interface {
 	Get(url string, parameter url.Values) logiares.ResponseSuccessWithPagination
 	Post(url string, payload any) logiares.ResponseSuccessWithPagination
 	PostMultipart(url string, payload any) logiares.ResponseSuccessWithPagination
@@ -34,8 +34,8 @@ type XtremeAPI interface {
 	Delete(url string, payload any) logiares.ResponseSuccessWithPagination
 }
 
-func NewXtremeAPI(opt ...XtremeAPIOption) XtremeAPI {
-	xa := xtremeAPI{}
+func NewLogiaAPI(opt ...LogiaAPIOption) LogiaAPI {
+	xa := logiaAPI{}
 	if len(opt) > 0 {
 		xa.option = opt[0]
 	}
@@ -43,13 +43,13 @@ func NewXtremeAPI(opt ...XtremeAPIOption) XtremeAPI {
 	return &xa
 }
 
-type xtremeAPI struct {
+type logiaAPI struct {
 	contentType string
-	option      XtremeAPIOption
+	option      LogiaAPIOption
 	payload     *bytes.Buffer
 }
 
-func (xa *xtremeAPI) Get(url string, parameter url.Values) logiares.ResponseSuccessWithPagination {
+func (xa *logiaAPI) Get(url string, parameter url.Values) logiares.ResponseSuccessWithPagination {
 	if filter := parameter.Encode(); filter != "" {
 		url += "?" + filter
 	}
@@ -57,31 +57,31 @@ func (xa *xtremeAPI) Get(url string, parameter url.Values) logiares.ResponseSucc
 	return xa.callAPI("GET", url)
 }
 
-func (xa *xtremeAPI) Post(url string, payload any) logiares.ResponseSuccessWithPagination {
+func (xa *logiaAPI) Post(url string, payload any) logiares.ResponseSuccessWithPagination {
 	xa.setJSONPayload(payload)
 
 	return xa.callAPI("POST", url)
 }
 
-func (xa *xtremeAPI) PostMultipart(url string, payload any) logiares.ResponseSuccessWithPagination {
+func (xa *logiaAPI) PostMultipart(url string, payload any) logiares.ResponseSuccessWithPagination {
 	xa.setMultipartPayload(payload)
 
 	return xa.callAPI("POST", url)
 }
 
-func (xa *xtremeAPI) Patch(url string, payload any) logiares.ResponseSuccessWithPagination {
+func (xa *logiaAPI) Patch(url string, payload any) logiares.ResponseSuccessWithPagination {
 	xa.setJSONPayload(payload)
 
 	return xa.callAPI("PATCH", url)
 }
 
-func (xa *xtremeAPI) Put(url string, payload any) logiares.ResponseSuccessWithPagination {
+func (xa *logiaAPI) Put(url string, payload any) logiares.ResponseSuccessWithPagination {
 	xa.setJSONPayload(payload)
 
 	return xa.callAPI("PUT", url)
 }
 
-func (xa *xtremeAPI) Delete(url string, payload any) logiares.ResponseSuccessWithPagination {
+func (xa *logiaAPI) Delete(url string, payload any) logiares.ResponseSuccessWithPagination {
 	xa.setJSONPayload(payload)
 
 	return xa.callAPI("DELETE", url)
@@ -89,7 +89,7 @@ func (xa *xtremeAPI) Delete(url string, payload any) logiares.ResponseSuccessWit
 
 /** --- UNEXPORTED FUNCTIONS --- */
 
-func (xa *xtremeAPI) callAPI(method string, url string) logiares.ResponseSuccessWithPagination {
+func (xa *logiaAPI) callAPI(method string, url string) logiares.ResponseSuccessWithPagination {
 	if xa.contentType == "" {
 		xa.contentType = "application/json"
 	}
@@ -142,7 +142,7 @@ func (xa *xtremeAPI) callAPI(method string, url string) logiares.ResponseSuccess
 	return success
 }
 
-func (xa *xtremeAPI) setMultipartPayload(payload any) {
+func (xa *logiaAPI) setMultipartPayload(payload any) {
 	writer := multipart.NewWriter(xa.payload)
 
 	fields := make(map[string]string)
@@ -157,7 +157,7 @@ func (xa *xtremeAPI) setMultipartPayload(payload any) {
 	writer.Close()
 }
 
-func (xa *xtremeAPI) setJSONPayload(payload any) {
+func (xa *logiaAPI) setJSONPayload(payload any) {
 	if payload != nil {
 		payloadByte, err := json.Marshal(payload)
 		if err != nil {
@@ -168,7 +168,7 @@ func (xa *xtremeAPI) setJSONPayload(payload any) {
 	}
 }
 
-func (xa *xtremeAPI) structToFormFields(v any, parent string, out map[string]string, writer *multipart.Writer) {
+func (xa *logiaAPI) structToFormFields(v any, parent string, out map[string]string, writer *multipart.Writer) {
 	val := reflect.ValueOf(v)
 	if val.Kind() == reflect.Ptr {
 		val = val.Elem()
@@ -216,7 +216,7 @@ func (xa *xtremeAPI) structToFormFields(v any, parent string, out map[string]str
 	}
 }
 
-func (xa *xtremeAPI) getMimeType(file multipart.File, handler *multipart.FileHeader) string {
+func (xa *logiaAPI) getMimeType(file multipart.File, handler *multipart.FileHeader) string {
 	buf := make([]byte, 512)
 	n, err := file.Read(buf)
 	if err != nil && err != io.EOF {

@@ -2,8 +2,7 @@ package command
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/yusologia/go-core/config"
-	"github.com/yusologia/go-core/helpers/logialog"
+	logiapkg "github.com/yusologia/go-core/v2/pkg"
 	"os"
 	"strconv"
 	"time"
@@ -16,11 +15,15 @@ func (command *DeleteLogFileCommand) Command(cmd *cobra.Command) {
 		Use:  "delete-log-file",
 		Long: "Delete log file command",
 		Run: func(cmd *cobra.Command, args []string) {
-			config.InitEnv()
+			logiapkg.InitDevMode()
 
 			command.Handle()
 		},
 	})
+}
+
+func (command *DeleteLogFileCommand) Prepare() (cancel func()) {
+	return func() {}
 }
 
 func (command *DeleteLogFileCommand) Handle() {
@@ -32,15 +35,15 @@ func (command *DeleteLogFileCommand) Handle() {
 		logDays, _ = strconv.Atoi(logDaysEnv)
 	}
 
-	filename := "logia-" + time.Now().AddDate(0, 0, -logDays).Format("2006-01-02") + ".log"
+	filename := time.Now().AddDate(0, 0, -logDays).Format("2006-01-02") + ".log"
 	fullPath := storageDir + filename
-	logialog.Debug(fullPath)
+	logiapkg.LogDebug(fullPath)
 
 	_, err := os.Stat(fullPath)
 	if err == nil {
 		err := os.Remove(fullPath)
 		if err != nil {
-			logialog.Error(err)
+			logiapkg.LogError(err)
 		}
 	}
 }

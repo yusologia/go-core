@@ -1,9 +1,9 @@
-package filesystem
+package logiafs
 
 import (
 	"encoding/base64"
 	"github.com/gabriel-vasile/mimetype"
-	"github.com/yusologia/go-core/helpers"
+	"github.com/yusologia/go-core/v2/pkg"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -32,7 +32,7 @@ func (st Uploader) SetName(name string) Uploader {
 
 func (st Uploader) MoveFile(r *http.Request, param string) (any, error) {
 	if len(st.Name) == 0 {
-		st.Name = helpers.RandomString(20)
+		st.Name = logiapkg.RandomString(20)
 	}
 
 	file, handler, err := r.FormFile(param)
@@ -43,12 +43,12 @@ func (st Uploader) MoveFile(r *http.Request, param string) (any, error) {
 
 	var storagePath string
 	if st.IsPublic {
-		storagePath = helpers.SetStorageAppPublicDir()
+		storagePath = logiapkg.SetStorageAppPublicDir()
 	} else {
-		storagePath = helpers.SetStorageAppDir()
+		storagePath = logiapkg.SetStorageAppDir()
 	}
 
-	helpers.CheckAndCreateDirectory(storagePath + "/" + st.Path)
+	logiapkg.CheckAndCreateDirectory(storagePath + "/" + st.Path)
 
 	filename := st.Name + filepath.Ext(handler.Filename)
 
@@ -68,17 +68,17 @@ func (st Uploader) MoveFile(r *http.Request, param string) (any, error) {
 
 func (st Uploader) MoveContent(content string) (any, error) {
 	if len(st.Name) == 0 {
-		st.Name = helpers.RandomString(20)
+		st.Name = logiapkg.RandomString(20)
 	}
 
 	var storagePath string
 	if st.IsPublic {
-		storagePath = helpers.SetStorageAppPublicDir()
+		storagePath = logiapkg.SetStorageAppPublicDir()
 	} else {
-		storagePath = helpers.SetStorageAppDir()
+		storagePath = logiapkg.SetStorageAppDir()
 	}
 
-	helpers.CheckAndCreateDirectory(storagePath + "/" + st.Path)
+	logiapkg.CheckAndCreateDirectory(storagePath + "/" + st.Path)
 
 	fileBytes, err := base64.StdEncoding.DecodeString(content)
 	if err != nil {
@@ -94,4 +94,19 @@ func (st Uploader) MoveContent(content string) (any, error) {
 	}
 
 	return strings.Replace(st.Path+"/"+st.Name, "//", "/", -1), nil
+}
+
+func storageCheckPath(path string) any {
+	info, err := os.Stat(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+	}
+
+	if info.IsDir() {
+		return nil
+	}
+
+	return path
 }

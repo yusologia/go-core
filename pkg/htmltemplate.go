@@ -1,4 +1,4 @@
-package helpers
+package logiapkg
 
 import (
 	"bytes"
@@ -12,9 +12,9 @@ func MailHTMLTemplate(path string, vars interface{}) string {
 
 	baseDir, _ := os.Getwd()
 
-	tmpl, err := template.ParseFiles(baseDir + "/layout/Email/" + path)
+	tmpl, err := template.ParseFiles(baseDir + "/internal/pkg/layout/email/" + path)
 	if err != nil {
-		log.Panicf("Error parsing template: %v", err)
+		log.Fatalf("Error parsing template: %v", err)
 	}
 	tmpl.Execute(&buf, vars)
 	return buf.String()
@@ -25,9 +25,9 @@ func PDFHTMLTemplate(path string, vars interface{}) bytes.Buffer {
 
 	baseDir, _ := os.Getwd()
 
-	tmpl, err := template.ParseFiles(baseDir + "/layout/PDF/" + path)
+	tmpl, err := template.ParseFiles(baseDir + "/internal/pkg/layout/pdf/" + path)
 	if err != nil {
-		log.Panicf("Error parsing template: %v", err)
+		log.Fatalf("Error parsing template: %v", err)
 	}
 	tmpl.Execute(&buf, vars)
 	return buf

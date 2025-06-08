@@ -1,14 +1,24 @@
-package queue
+package logiaqueue
 
 import (
 	"fmt"
 	"github.com/gocraft/work"
+	"github.com/yusologia/go-core/v2/pkg"
 	"gorm.io/gorm/utils"
 	"log"
 	"os"
 	"os/signal"
 	"strings"
 )
+
+type JobConf struct {
+	Context     interface{}
+	JobFunc     interface{}
+	QueueName   string
+	JobName     string
+	Priority    uint
+	Concurrency uint
+}
 
 type Queue struct {
 	Names string
@@ -22,9 +32,14 @@ func (q Queue) Work(workers []JobConf) {
 		names = strings.Split(q.Names, ",")
 	}
 
-	RegisterRedis()
+	logiapkg.InitRedisPool()
 
 	var pools []*work.WorkerPool
+	defer func() {
+		for _, pool := range pools {
+			pool.Stop()
+		}
+	}()
 
 	for _, worker := range workers {
 		if len(names) > 0 {
@@ -33,7 +48,7 @@ func (q Queue) Work(workers []JobConf) {
 			}
 		}
 
-		pool := work.NewWorkerPool(worker.Context, worker.Concurrency, worker.QueueName, RedisPool)
+		pool := work.NewWorkerPool(worker.Context, worker.Concurrency, worker.QueueName, logiapkg.RedisPool)
 		pool.JobWithOptions(worker.JobName, work.JobOptions{
 			Priority: worker.Priority,
 		}, worker.JobFunc)
@@ -49,10 +64,6 @@ func (q Queue) Work(workers []JobConf) {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, os.Kill)
 	<-signalChan
-
-	for _, pool := range pools {
-		pool.Stop()
-	}
 
 	fmt.Println("All worker is done!")
 }

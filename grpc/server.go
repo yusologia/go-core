@@ -1,4 +1,4 @@
-package xtremegrpc
+package logiagrpc
 
 import (
 	"google.golang.org/grpc"

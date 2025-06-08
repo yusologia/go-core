@@ -1,18 +1,17 @@
-package middleware
+package logiamdw
 
 import (
 	"github.com/go-playground/validator/v10"
-	"github.com/yusologia/go-core/config"
-	"github.com/yusologia/go-response/error"
-	"net/http"
+	logiapkg "github.com/yusologia/go-core/v2/pkg"
+	logiares "github.com/yusologia/go-core/v2/response"
 	"strings"
 	"time"
 )
 
 type Validator struct{}
 
-func (v Validator) Make(r *http.Request, rules interface{}) {
-	err := config.LogiaValidate.Struct(rules)
+func (v Validator) Make(rules interface{}) {
+	err := logiapkg.LogiaValidate.Struct(rules)
 	if err != nil {
 		var attributes []interface{}
 		for _, e := range err.(validator.ValidationErrors) {
@@ -22,20 +21,18 @@ func (v Validator) Make(r *http.Request, rules interface{}) {
 			})
 		}
 
-		error.ErrLogiaValidation(attributes)
+		logiares.ErrLogiaValidation(attributes)
 	}
 }
 
 func (v Validator) RegisterValidation(callback func(validate *validator.Validate)) {
-	config.LogiaValidate = validator.New()
+	logiapkg.LogiaValidate = validator.New()
 
-	_ = config.LogiaValidate.RegisterValidation("date_ddmmyyyy", dateDDMMYYYYValidation)
-	_ = config.LogiaValidate.RegisterValidation("time_hhmm", dateHHMMValidation)
-	_ = config.LogiaValidate.RegisterValidation("time_hhmmss", dateHHMMSSValidation)
-	_ = config.LogiaValidate.RegisterValidation("date_ddmmyyyyhhmm", dateDDMMYYYYHHMMValidation)
-	_ = config.LogiaValidate.RegisterValidation("date_ddmmyyyyhhmmss", dateDDMMYYYYHHMMSSValidation)
+	_ = logiapkg.LogiaValidate.RegisterValidation("date_ddmmyyyy", dateDDMMYYYYValidation)
+	_ = logiapkg.LogiaValidate.RegisterValidation("time_hhmm", dateHHMMValidation)
+	_ = logiapkg.LogiaValidate.RegisterValidation("time_hhmmss", dateHHMMSSValidation)
 
-	callback(config.LogiaValidate)
+	callback(logiapkg.LogiaValidate)
 }
 
 func getMessage(errMsg string) string {
@@ -77,25 +74,5 @@ func dateHHMMSSValidation(fl validator.FieldLevel) bool {
 	}
 
 	_, err := time.Parse("15:04:05", field)
-	return err == nil
-}
-
-func dateDDMMYYYYHHMMValidation(fl validator.FieldLevel) bool {
-	field := fl.Field().String()
-	if field == "" {
-		return true
-	}
-
-	_, err := time.Parse("02/01/2006 15:04", field)
-	return err == nil
-}
-
-func dateDDMMYYYYHHMMSSValidation(fl validator.FieldLevel) bool {
-	field := fl.Field().String()
-	if field == "" {
-		return true
-	}
-
-	_, err := time.Parse("02/01/2006 15:04:05", field)
 	return err == nil
 }

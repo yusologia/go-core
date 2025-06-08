@@ -1,10 +1,10 @@
-package middleware
+package logiamdw
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/yusologia/go-core/helpers/logialog"
-	logiares "github.com/yusologia/go-response"
+	logiapkg "github.com/yusologia/go-core/v2/pkg"
+	"github.com/yusologia/go-core/v2/response"
 	"log"
 	"net/http"
 	"os"
@@ -16,20 +16,23 @@ func PanicHandler(next http.Handler) http.Handler {
 			if r := recover(); r != nil {
 				w.Header().Set("Content-Type", "application/json")
 
-				fmt.Fprintf(os.Stderr, "panic: %v\n", r)
-				logialog.Error(r)
-
 				var res *logiares.ResponseError
 				if panicData, ok := r.(*logiares.ResponseError); ok {
 					res = panicData
 				} else {
 					res = &logiares.ResponseError{
-						Status: logiares.Status{
-							Code:    http.StatusInternalServerError,
-							Message: "An error Occurred.",
+						Status: logiares.StatusError{
+							Bug: true,
+							Status: logiares.Status{
+								Code:    http.StatusInternalServerError,
+								Message: "An error Occurred.",
+							},
 						},
 					}
 				}
+
+				fmt.Fprintf(os.Stderr, "panic: %v\n", r)
+				logiapkg.LogError(r)
 
 				w.WriteHeader(res.Status.Code)
 

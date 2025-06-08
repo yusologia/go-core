@@ -1,8 +1,8 @@
-package filesystem
+package logiafs
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/yusologia/go-core/helpers"
+	"github.com/yusologia/go-core/v2/pkg"
 	"net/http"
 	"os"
 )
@@ -16,9 +16,9 @@ func (repo Storage) GetFullPath(path string) string {
 
 	var storageDir string
 	if repo.IsPublic {
-		storageDir = helpers.SetStorageAppPublicDir(path)
+		storageDir = logiapkg.SetStorageAppPublicDir(path)
 	} else {
-		storageDir = helpers.SetStorageDir(path)
+		storageDir = logiapkg.SetStorageDir(path)
 	}
 
 	return baseDir + "/" + storageDir
@@ -39,31 +39,16 @@ func (repo Storage) ShowFile(w http.ResponseWriter, r *http.Request, paths ...st
 	}
 
 	if repo.IsPublic {
-		path = helpers.SetStorageAppPublicDir(path)
+		path = logiapkg.SetStorageAppPublicDir(path)
 	} else {
-		path = helpers.SetStorageDir(path)
+		path = logiapkg.SetStorageDir(path)
 	}
 
-	realPath := checkPath(path)
+	realPath := storageCheckPath(path)
 	if realPath == nil {
 		http.NotFound(w, r)
 		return
 	}
 
 	http.ServeFile(w, r, realPath.(string))
-}
-
-func checkPath(path string) any {
-	info, err := os.Stat(path)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-	}
-
-	if info.IsDir() {
-		return nil
-	}
-
-	return path
 }
